@@ -18,7 +18,7 @@ object InMemoryBackend extends KeyValueBackend {
     entries.put(key, entry)
   }
 
-  override def getEntry(key: BackendKey): Future[Entry] = Future {
+  override def getEntry(key: EntryKey): Future[Entry] = Future {
     Option(entries.get(key)) match {
       case Some(value) => value
       case None        => throw NotFound(key)

@@ -19,7 +19,7 @@ class KeyValueHistoryImpl(implicit backend: KeyValueBackend) extends HistoryStor
     val currentTime = System.currentTimeMillis().toString
 
     // fetch key of last entry if there was one
-    val lastEntryKey: Future[Option[BackendKey]] = backend.getReference(key).map { ref =>
+    val lastEntryKey: Future[Option[EntryKey]] = backend.getReference(key).map { ref =>
       Some(ref.entryRef)
     } recover {
       case _ => None

@@ -16,7 +16,7 @@ class CouchbaseBackend(bucketName: String) extends KeyValueBackend {
   implicit val entryFormat = Json.format[Entry]
   implicit val referenceFormat = Json.format[Reference]
 
-  override def setEntry(key: BackendKey, entry: Entry): Future[Any] = {
+  override def setEntry(key: EntryKey, entry: Entry): Future[Any] = {
     bucket.set(key, entry)
   }
 
@@ -24,7 +24,7 @@ class CouchbaseBackend(bucketName: String) extends KeyValueBackend {
     bucket.set(key, reference)
   }
 
-  override def getEntry(key: BackendKey): Future[Entry] = {
+  override def getEntry(key: EntryKey): Future[Entry] = {
     bucket.get[Entry](key).flatMap {
       case Some(entry) => Future.successful(entry)
       case None        => Future.failed(new RuntimeException("Entry not found!"))

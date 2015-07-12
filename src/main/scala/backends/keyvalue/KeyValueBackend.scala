@@ -9,17 +9,17 @@ import scala.concurrent.Future
 trait KeyValueBackend {
   def setReference(key: Key, reference: Reference): Future[Any]
 
-  def setEntry(key: BackendKey, entry: Entry): Future[Any]
+  def setEntry(key: EntryKey, entry: Entry): Future[Any]
 
   def getReference(key: Key): Future[Reference]
 
-  def getEntry(key: BackendKey): Future[Entry]
+  def getEntry(key: EntryKey): Future[Entry]
 }
 
 object KeyValueBackend {
-  type BackendKey = String
+  type EntryKey = String
 
-  case class Entry(timestamp: Timestamp, parent: Option[BackendKey], content: Value)
+  case class Entry(timestamp: Timestamp, parent: Option[EntryKey], content: Value)
 
-  case class Reference(entryRef: BackendKey, lastModified: Timestamp)
+  case class Reference(entryRef: EntryKey, lastModified: Timestamp)
 }
