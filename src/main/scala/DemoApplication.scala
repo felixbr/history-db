@@ -21,4 +21,8 @@ object DemoApplication extends App {
   Await.ready(HistoryDB.set(key, value2), 3.seconds)
   println(Await.result(HistoryDB.get(key), 3.seconds))
 
+  println("")
+
+  Await.result(HistoryDB.showHistory(key), 3.seconds).foreach(println)
+
 }

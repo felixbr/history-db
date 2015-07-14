@@ -1,11 +1,12 @@
 package backends.keyvalue
 
 import backends.keyvalue.KeyValueBackend._
-import core.HistoryStorage
 import core.aliases._
+import core.{HistoryEntry, HistoryStorage}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent._
+import scala.concurrent.duration._
 
 trait KeyValueHistoryStorageMixin extends HistoryStorage {
 
@@ -16,6 +17,14 @@ trait KeyValueHistoryStorageMixin extends HistoryStorage {
 
   override def get(key: Key): Future[Value] =
     getFromDB(key)
+
+  override def history(key: Key, limit: Int = -1): Future[Seq[HistoryEntry]] = {
+    for (
+      ref <- backend.getReference(key);
+      entries <- fetchHistoryFromDB(ref.entryRef, pending = limit)
+    ) yield entries.map(e => HistoryEntry(e.timestamp, e.content))
+  }
+
 
   private def setToDB(key: Key, value: Value): Future[Unit] = {
     val currentTime = System.currentTimeMillis().toString
@@ -41,6 +50,20 @@ trait KeyValueHistoryStorageMixin extends HistoryStorage {
       ref <- backend.getReference(key);
       entryFuture <- backend.getEntry(ref.entryRef)
     ) yield entryFuture.content
+  }
+
+  private def fetchHistoryFromDB(nextEntryKey: EntryKey, entries: List[Entry] = List.empty, pending: Int = 0): Future[List[Entry]] = {
+    backend.getEntry(nextEntryKey).map { entry =>
+      entry.parent match {
+        case _ if pending == 0 => entries
+        case _ if pending == 1 => entries :+ entry
+        case None              => entries :+ entry
+        case Some(parentKey)   =>
+          (entries :+ entry) ++ Await.result(fetchHistoryFromDB(parentKey, pending = pending - 1), 3.seconds)
+      }
+    } recover {
+      case _ => entries
+    }
   }
 
 }
