@@ -7,7 +7,9 @@ scalaVersion := "2.11.7"
 resolvers += "ReactiveCouchbase Releases" at "https://raw.github.com/ReactiveCouchbase/repository/master/releases/"
 
 libraryDependencies ++= Seq(
-  "org.reactivecouchbase" %% "reactivecouchbase-core" % "0.3"
+  "org.scala-lang" % "scala-reflect" % "2.11.7",
+  "org.reactivecouchbase" %% "reactivecouchbase-core" % "0.3",
+  "net.debasishg" %% "redisclient" % "3.0"
 )
 
 scalacOptions ++= Seq(

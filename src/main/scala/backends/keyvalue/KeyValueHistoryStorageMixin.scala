@@ -7,15 +7,17 @@ import core.aliases._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class KeyValueHistoryImpl(implicit backend: KeyValueBackend) extends HistoryStorage {
+trait KeyValueHistoryStorageMixin extends HistoryStorage {
 
-  override def set(key: Key, value: Value): Future[Any] =
+  def backend: KeyValueBackend
+
+  override def set(key: Key, value: Value): Future[Unit] =
     setToDB(key, value)
 
   override def get(key: Key): Future[Value] =
     getFromDB(key)
 
-  private def setToDB(key: Key, value: Value): Future[Any] = {
+  private def setToDB(key: Key, value: Value): Future[Unit] = {
     val currentTime = System.currentTimeMillis().toString
 
     // fetch key of last entry if there was one
@@ -29,8 +31,8 @@ class KeyValueHistoryImpl(implicit backend: KeyValueBackend) extends HistoryStor
 
 
     lastEntryKey
-      .map(k => backend.setEntry(newID, Entry(currentTime, k, value)))
-      .map(_ => backend.setReference(key, Reference(newID, currentTime)))
+      .flatMap(k => backend.setEntry(newID, Entry(currentTime, k, value)))
+      .flatMap(_ => backend.setReference(key, Reference(newID, currentTime)))
   }
 
 

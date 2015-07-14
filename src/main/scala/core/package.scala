@@ -10,7 +10,7 @@ object aliases {
 }
 
 trait HistoryStorage {
-  def set(key: Key, value: Value): Future[Any]
+  def set(key: Key, value: Value): Future[Unit]
 
   def get(key: Key): Future[Value]
 }

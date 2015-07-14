@@ -10,11 +10,11 @@ import core.aliases.Key
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object InMemoryBackend extends KeyValueBackend {
+class InMemoryBackend extends KeyValueBackend {
   private val entries = new ConcurrentHashMap[Key, Entry]()
   private val references = new ConcurrentHashMap[Key, Reference]()
 
-  override def setEntry(key: Key, entry: Entry): Future[Any] = Future {
+  override def setEntry(key: Key, entry: Entry): Future[Unit] = Future {
     entries.put(key, entry)
   }
 
@@ -25,7 +25,7 @@ object InMemoryBackend extends KeyValueBackend {
     }
   }
 
-  override def setReference(key: Key, reference: Reference): Future[Any] = Future {
+  override def setReference(key: Key, reference: Reference): Future[Unit] = Future {
     references.put(key, reference)
   }
 
